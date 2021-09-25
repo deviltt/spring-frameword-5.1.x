@@ -7,4 +7,10 @@
 		<property name="name" value="tt"/>
 	</bean>
 
+	<bean class="com.tt.MyBeanPostProcessor"/>
+
+	<bean id="book" class="com.tt.Book" init-method="myPostConstruct" destroy-method="myPreDestroy">
+		<property name="bookName" value="thinking in java"/>
+	</bean>
+
 </beans>

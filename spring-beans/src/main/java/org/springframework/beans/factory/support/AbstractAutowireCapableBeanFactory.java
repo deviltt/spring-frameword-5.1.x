@@ -551,6 +551,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
 		if (instanceWrapper == null) {
+			// 创建bean后包装成 BeanWrapper 类型
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
 		Object bean = instanceWrapper.getWrappedInstance();
@@ -588,7 +589,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
+			// 上一步通过构造器 newInstance 创建了 bean 的实例，但是里面的属性都是默认值
+			// 填充bean，为bean设置属性值，对应 Bean 属性注入
 			populateBean(beanName, mbd, instanceWrapper);
+			// 实例化bean完成后就执行bean实现的类似 *Aware 接口对应的方法
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -1753,6 +1757,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}, getAccessControlContext());
 		}
 		else {
+			// 执行bean实现的类似 *Aware 接口对应的方法
 			invokeAwareMethods(beanName, bean);
 		}
 
