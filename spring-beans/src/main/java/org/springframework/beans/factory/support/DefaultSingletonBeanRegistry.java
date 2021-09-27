@@ -158,7 +158,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
 		synchronized (this.singletonObjects) {
 			if (!this.singletonObjects.containsKey(beanName)) {
+				// 实例化bean后（此时还没有初始化bean）先放入三级缓存
 				this.singletonFactories.put(beanName, singletonFactory);
+				// 如果二级缓存有就删除
 				this.earlySingletonObjects.remove(beanName);
 				this.registeredSingletons.add(beanName);
 			}
@@ -192,10 +194,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (singletonObject == null) {
 						singletonObject = this.earlySingletonObjects.get(beanName);
 						if (singletonObject == null) {
+							// 从三级缓存中取出依赖对象
 							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 							if (singletonFactory != null) {
+								// 回调
 								singletonObject = singletonFactory.getObject();
+								// 将依赖对象放入二级缓存，此时的依赖对象可能是代理对象
 								this.earlySingletonObjects.put(beanName, singletonObject);
+								// 将依赖对象从三级缓存中删除
 								this.singletonFactories.remove(beanName);
 							}
 						}
