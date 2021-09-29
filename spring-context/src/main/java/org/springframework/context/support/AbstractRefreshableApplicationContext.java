@@ -200,6 +200,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 
 	/**
 	 * Customize the internal bean factory used by this context.
+	 * 自定义内部bean工厂所使用的上下文
 	 * Called for each {@link #refresh()} attempt.
 	 * <p>The default implementation applies this context's
 	 * {@linkplain #setAllowBeanDefinitionOverriding "allowBeanDefinitionOverriding"}
