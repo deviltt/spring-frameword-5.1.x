@@ -245,6 +245,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 		// Eagerly check singleton cache for manually registered singletons.
 		// 先到容器中进行查找
+		// 针对不同的场景，返回的bean有4中情况
+		// 1.null
+		// 2.一级缓存singletonObjects完整的bean
+		// 3.二级缓存earlySingletonObjects的半成品bean
+		// 4.三级缓存singletonFactories中的getEarlyBeanReference匿名内部类
+		// 然后根据不同的返回值，在后面做不同的处理
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
@@ -267,8 +273,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
 		else {
+			// 两种场景走到这：1.sharedInstance=null；2.sharedInstance!=null args!=null
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
+			// todo 因为 Spring 只解决单例模式下得循环依赖，在原型模式下如果存在循环依赖则会抛出异常
 			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
@@ -295,11 +303,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 
+			// 如果不是仅仅做类型检查，则是创建bean，需要标记bean已经创建
 			if (!typeCheckOnly) {
 				markBeanAsCreated(beanName);
 			}
 
 			try {
+				// 根据beanName获取MergedBeanDefinition，结果类型是RootBeanDefinition
 				RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
@@ -1278,7 +1288,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			if (mbd == null) {
 				if (bd.getParentName() == null) {
 					// Use copy of given root bean definition.
+					/*
+					 bd不是一个ChildBeanDefinition的情况，换句话讲，这个bd应该是：
+					 1. 一个独立的 GenericBeanDefinition 实例，parentName属性为null
+					 2. 或者是一个 RootBeanDefinition 实例，parentName属性为null
+					 */
 					if (bd instanceof RootBeanDefinition) {
+						// 如果bd是RootBeanDefinition类型，mbd直接使用一个bd的复制品
 						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
 					}
 					else {
@@ -1287,8 +1303,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 				else {
 					// Child bean definition: needs to be merged with parent.
+					/*
+					 bd是一个ChildBeanDefinition的情况
+					 这种情况下，需要将bd和其parent bean definition合并到一起，形成最终的 mbd
+					 下面是获取bd的parent bean definition的过程，最终结果记录到pbd
+					 并且可以看到该过程递归使用了getMergedBeanDefinition，为什么呢？
+					 因为bd的parent bd可能也是个ChildBeanDefinition，所以该过程需要递归处理
+					 */
 					BeanDefinition pbd;
 					try {
+						// 如果是ChildBeanDefinition，就一直向上调用，知道等于beanName为止
 						String parentBeanName = transformedBeanName(bd.getParentName());
 						if (!beanName.equals(parentBeanName)) {
 							pbd = getMergedBeanDefinition(parentBeanName);
@@ -1315,6 +1339,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 
 				// Set default singleton scope, if not configured before.
+				// 这里就是bean的默认范围，如果没有设置scope，那默认类型就是singleton单例类型
 				if (!StringUtils.hasLength(mbd.getScope())) {
 					mbd.setScope(SCOPE_SINGLETON);
 				}
