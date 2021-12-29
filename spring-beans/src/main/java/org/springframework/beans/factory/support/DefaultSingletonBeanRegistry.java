@@ -202,7 +202,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 							// 从三级缓存中取出依赖对象
 							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 							if (singletonFactory != null) {
-								// 回调
+								// 回调，调用getEarlyBeanReference匿名内部类的方法
+								// 可能会生成代理对象，也可能是本身对象
 								singletonObject = singletonFactory.getObject();
 								// 将依赖对象放入二级缓存，此时的依赖对象可能是代理对象
 								this.earlySingletonObjects.put(beanName, singletonObject);
