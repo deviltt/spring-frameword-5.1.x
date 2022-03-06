@@ -239,7 +239,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	protected <T> T doGetBean(
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
-
+		// 提取对应的beanName
 		String beanName = transformedBeanName(name);
 		Object bean;
 
@@ -251,6 +251,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// 3.二级缓存earlySingletonObjects的半成品bean
 		// 4.三级缓存singletonFactories中的getEarlyBeanReference匿名内部类
 		// 然后根据不同的返回值，在后面做不同的处理
+		// 当有循环依赖的时候，会提前暴露对象
 		Object sharedInstance = getSingleton(beanName);
 		if (sharedInstance != null && args == null) {
 			if (logger.isTraceEnabled()) {
@@ -1691,6 +1692,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
 			}
+			// isFactoryDereference但是不是FactoryBean类型的时候直接抛出异常
 			if (!(beanInstance instanceof FactoryBean)) {
 				throw new BeanIsNotAFactoryException(beanName, beanInstance.getClass());
 			}
@@ -1699,13 +1701,19 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
-		// 对于既不是FactoryBean类型，beanName又不是以&开头的普通bean，直接返回
+		/*
+		两种类型的会返回：
+		1.isFactoryDereference且是FactoryBean类型
+		2.不是isFactoryDereference且也不是FactoryBean类型的普通bean
+		 */
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
 
+		// 走到这那肯定是 不是isFactoryDereference，但是是FactoryBean类型
 		Object object = null;
 		if (mbd == null) {
+			// 先从FactoryBean的Cache中获取bean，获取不到再调用factoryBean.getObject获取
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {
