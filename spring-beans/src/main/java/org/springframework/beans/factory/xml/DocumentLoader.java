@@ -23,6 +23,7 @@ import org.xml.sax.InputSource;
 
 /**
  * Strategy interface for loading an XML {@link Document}.
+ * 提供了将Resource转换位Document的能力
  *
  * @author Rob Harrop
  * @since 2.0

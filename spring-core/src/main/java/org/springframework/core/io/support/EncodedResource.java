@@ -140,6 +140,7 @@ public class EncodedResource implements InputStreamSource {
 			return new InputStreamReader(this.resource.getInputStream(), this.charset);
 		}
 		else if (this.encoding != null) {
+			// 如果设置了编码，会用该编码作为InputStream的输入流
 			return new InputStreamReader(this.resource.getInputStream(), this.encoding);
 		}
 		else {

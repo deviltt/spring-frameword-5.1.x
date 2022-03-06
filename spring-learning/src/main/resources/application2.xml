@@ -4,4 +4,8 @@
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="person" class="com.app2.Person"/>
+
+	<bean id="factoryBeanTest" class="com.tt.FactoryBeanTest">
+		<property name="ids" value="1,2,3"/>
+	</bean>
 </beans>

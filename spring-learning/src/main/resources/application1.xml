@@ -3,16 +3,17 @@
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="user1" class="com.tt.User">
-		<property name="name" value="tt"/>
-	</bean>
+<!--	<bean id="user1" class="com.tt.User">-->
+<!--		<property name="name" value="tt"/>-->
+<!--	</bean>-->
 
 	<!--	<bean class="com.tt.MyBeanPostProcessor"/>-->
 
-	<bean id="book" class="com.tt.Book" init-method="myPostConstruct" destroy-method="myPreDestroy">
+	<bean id="book1" class="com.tt.Book" init-method="myPostConstruct" destroy-method="myPreDestroy">
 		<property name="bookName" value="thinking in java"/>
 	</bean>
 
-	<bean id="job1" class="com.tt.AbstractJob"/>
-
+<!--	<bean id="job1" class="com.tt.AbstractJob"/>-->
+	<alias name="book1" alias="booka"/>
+	<alias name="book1" alias="bookb"/>
 </beans>
