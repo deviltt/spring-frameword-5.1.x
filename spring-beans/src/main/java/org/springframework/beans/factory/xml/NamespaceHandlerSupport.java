@@ -38,15 +38,19 @@ import org.springframework.lang.Nullable;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @since 2.0
  * @see #registerBeanDefinitionParser(String, BeanDefinitionParser)
  * @see #registerBeanDefinitionDecorator(String, BeanDefinitionDecorator)
+ * @since 2.0
  */
 public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 
 	/**
 	 * Stores the {@link BeanDefinitionParser} implementations keyed by the
 	 * local name of the {@link Element Elements} they handle.
+	 *
+	 * 用于存放各种在命名空间中申明的解析器
+	 * 如定义了 <aspectj-autoproxy></aspectj-autoproxy>，就会创建一个AspectJAutoProxyBeanDefinitionParser解析器
+	 *
 	 */
 	private final Map<String, BeanDefinitionParser> parsers = new HashMap<>();
 
@@ -113,11 +117,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 		String localName = parserContext.getDelegate().getLocalName(node);
 		if (node instanceof Element) {
 			decorator = this.decorators.get(localName);
-		}
-		else if (node instanceof Attr) {
+		} else if (node instanceof Attr) {
 			decorator = this.attributeDecorators.get(localName);
-		}
-		else {
+		} else {
 			parserContext.getReaderContext().fatal(
 					"Cannot decorate based on Nodes of type [" + node.getClass().getName() + "]", node);
 		}

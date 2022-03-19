@@ -501,7 +501,7 @@ public class StringUtilsTests {
 
 	@Test
 	public void testTokenizeToStringArray() {
-		String[] sa = StringUtils.tokenizeToStringArray("a,b , ,c", ",");
+		String[] sa = StringUtils.tokenizeToStringArray("a,b , ,c", ",; ");
 		assertEquals(3, sa.length);
 		assertTrue("components are correct",
 				sa[0].equals("a") && sa[1].equals("b") && sa[2].equals("c"));

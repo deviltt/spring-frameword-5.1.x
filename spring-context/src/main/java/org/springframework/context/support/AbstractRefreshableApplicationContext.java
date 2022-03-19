@@ -64,9 +64,15 @@ import org.springframework.lang.Nullable;
  */
 public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext {
 
+	/**
+	 * 是否允许覆盖同名称的不同定义的对象
+	 */
 	@Nullable
 	private Boolean allowBeanDefinitionOverriding;
 
+	/**
+	 * 是否允许bean之间存在循环依赖
+	 */
 	@Nullable
 	private Boolean allowCircularReferences;
 
@@ -120,14 +126,18 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
 		if (hasBeanFactory()) {
+			// 如果有就销毁并关闭原来的beanFactory
 			destroyBeans();
 			closeBeanFactory();
 		}
 		try {
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
+			// 定制beanFactory，设置相关属性
+			// 设置@Autowired和@Qualifier注解解析器QualifierAnnotationAutowireCandidateResolver
 			customizeBeanFactory(beanFactory);
 			// 装载 beanDefinition
+			// 初始化DocumentReader，并进行XML文件读取和解析
 			loadBeanDefinitions(beanFactory);
 			this.beanFactory = beanFactory;
 		}

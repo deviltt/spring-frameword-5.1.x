@@ -412,7 +412,9 @@ public class BeanDefinitionParserDelegate {
 	 */
 	@Nullable
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
+		// 解析id属性
 		String id = ele.getAttribute(ID_ATTRIBUTE);
+		// 解析name属性
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
 		List<String> aliases = new ArrayList<>();
@@ -514,6 +516,7 @@ public class BeanDefinitionParserDelegate {
 		try {
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
+			// 硬编码解析默认bean的各种属性
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 

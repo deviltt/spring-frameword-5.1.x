@@ -127,6 +127,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 		}
 		String[] configLocations = getConfigLocations();
 		if (configLocations != null) {
+			// todo 创建内部的动态代理解析器
 			reader.loadBeanDefinitions(configLocations);
 		}
 	}

@@ -31,6 +31,8 @@ import org.springframework.lang.Nullable;
  * <p>The parser locates a {@link BeanDefinitionParser} from the associated
  * {@link NamespaceHandler} for the namespace in which the custom tag resides.
  *
+ * 所有的 *BeanDefinitionParser 都需要实现这个接口
+ *
  * @author Rob Harrop
  * @since 2.0
  * @see NamespaceHandler

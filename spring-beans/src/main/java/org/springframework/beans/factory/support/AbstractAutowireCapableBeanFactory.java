@@ -943,6 +943,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	/**
 	 * Obtain a reference for early access to the specified bean,
 	 * typically for the purpose of resolving a circular reference.
+	 *
+	 * 对bean再一次依赖引用，主要应用SmartInstantiationAwareBeanPostProcessor
+	 * 其中我们熟知的AOP就是在这里将advice动态织入bean中，若没有则直接返回bean，不做任何处理
+	 *
 	 * @param beanName the name of the bean (for error handling purposes)
 	 * @param mbd the merged bean definition for the bean
 	 * @param bean the raw bean instance
@@ -1176,6 +1180,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (mbd.getFactoryMethodName() != null) {
+			// 如果工厂方法不为空则使用工厂方法初始化策略
+			// 如果再RootBeanDefinition中存在factoryMethodName，
+			// 或者在配置文件中配置了factory-method，尝试使用下面的方法生成bean的实例
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}
 
@@ -1184,25 +1191,32 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		boolean autowireNecessary = false;
 		if (args == null) {
 			synchronized (mbd.constructorArgumentLock) {
+				// 由于解析参数判断使用哪个构造函数实例化bean比较消耗性能，
+				// 所以使用resolvedConstructorOrFactoryMethod缓存的值去取，否则需要重复解析
 				if (mbd.resolvedConstructorOrFactoryMethod != null) {
 					resolved = true;
 					autowireNecessary = mbd.constructorArgumentsResolved;
 				}
 			}
 		}
+		// 如果已经解析过则使用解析好的构造函数方法不需要再次锁定
 		if (resolved) {
 			if (autowireNecessary) {
+				// 构造函数自动注入
 				return autowireConstructor(beanName, mbd, null, null);
 			}
 			else {
+				// 使用默认构造函数构造
 				return instantiateBean(beanName, mbd);
 			}
 		}
 
 		// Candidate constructors for autowiring?
+		// 需要根据参数解析构造函数
 		Constructor<?>[] ctors = determineConstructorsFromBeanPostProcessors(beanClass, beanName);
 		if (ctors != null || mbd.getResolvedAutowireMode() == AUTOWIRE_CONSTRUCTOR ||
 				mbd.hasConstructorArgumentValues() || !ObjectUtils.isEmpty(args)) {
+			// 构造函数自动注入
 			return autowireConstructor(beanName, mbd, ctors, args);
 		}
 
@@ -1213,6 +1227,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// No special handling: simply use no-arg constructor.
+		// 使用默认构造函数构造
 		return instantiateBean(beanName, mbd);
 	}
 
@@ -1383,6 +1398,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
 		// state of the bean before properties are set. This can be used, for example,
 		// to support styles of field injection.
+		// 给InstantiationAwareBeanPostProcessor最后一次机会在属性设置前来改变Bean
+		// 如：可以用来支持属性注入的类型
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
@@ -1400,10 +1417,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (resolvedAutowireMode == AUTOWIRE_BY_NAME || resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
 			// Add property values based on autowire by name if applicable.
+			// 根据名称自动注入
 			if (resolvedAutowireMode == AUTOWIRE_BY_NAME) {
 				autowireByName(beanName, mbd, bw, newPvs);
 			}
 			// Add property values based on autowire by type if applicable.
+			// 根据类型自动注入
 			if (resolvedAutowireMode == AUTOWIRE_BY_TYPE) {
 				autowireByType(beanName, mbd, bw, newPvs);
 			}
@@ -1412,6 +1431,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// 容器是否注册了 InstantiationAwareBeanPostProcessor
 		boolean hasInstAwareBpps = hasInstantiationAwareBeanPostProcessors();
+		// 需要依赖检查
 		boolean needsDepCheck = (mbd.getDependencyCheck() != AbstractBeanDefinition.DEPENDENCY_CHECK_NONE);
 
 		PropertyDescriptor[] filteredPds = null;
