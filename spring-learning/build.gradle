@@ -13,6 +13,22 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile project(":spring-aop")
     compile project(":spring-context")
+    compile project(":spring-context-support")
+    compile project(":spring-core")
+
+    compile project(":spring-test")
+    compile project(":spring-webmvc")
+    compile project(":spring-messaging")
+    compile project(":spring-orm")
+    compile project(":spring-oxm")
+    compile project(":spring-web")
+    compile project(":spring-webflux")
+    compile project(":spring-webmvc")
+    compile project(":spring-websocket")
+    implementation 'com.github.stefanbirkner:system-rules:1.16.0'
     implementation group: 'org.aspectj', name: 'aspectjweaver', version: '1.9.6'
+
+    compile fileTree(dir:'libs',include:['*.jar'])
 }
