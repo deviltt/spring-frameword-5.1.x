@@ -12,9 +12,13 @@ public class UserTest {
 	public void test1() {
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("application1.xml");
 
-		User user = (User) context.getBean("user1");
+		Book book = (Book) context.getBean("book1");
 
-		System.out.println(user);
+		String action = (String) context.getBeanFactory().getBeanDefinition("book1").getAttribute("action");
+
+		System.out.println(action);
+
+		System.out.println(book);
 	}
 
 	/**

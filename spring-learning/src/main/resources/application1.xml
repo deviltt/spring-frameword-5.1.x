@@ -11,6 +11,7 @@
 
 	<bean id="book1" class="com.tt.Book" init-method="myPostConstruct" destroy-method="myPreDestroy">
 		<property name="bookName" value="thinking in java"/>
+		<meta key="action" value="haha"/>
 	</bean>
 
 <!--	<bean id="job1" class="com.tt.AbstractJob"/>-->

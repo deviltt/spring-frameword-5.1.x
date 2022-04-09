@@ -212,7 +212,7 @@ public class ResolvableType implements Serializable {
 		}
 		Type rawType = this.type;
 		if (rawType instanceof ParameterizedType) {
-			rawType = ((ParameterizedType) rawType).getRawType();
+			rawType = ((ParameterizedType) rawType).getRawType();	// List<Integer>，RawClass返回List
 		}
 		return (rawType instanceof Class ? (Class<?>) rawType : null);
 	}
@@ -248,6 +248,7 @@ public class ResolvableType implements Serializable {
 	 * @see #isAssignableFrom(Class)
 	 */
 	public boolean isInstance(@Nullable Object obj) {
+		// 判断当前bean是否是从obj转来的
 		return (obj != null && isAssignableFrom(obj.getClass()));
 	}
 
@@ -792,6 +793,8 @@ public class ResolvableType implements Serializable {
 	 * @see #resolveGenerics()
 	 */
 	public Class<?> resolve(Class<?> fallback) {
+		// 如果 resolved 不为null，则返回resolved
+		// 如果 resolved 为null，则返回 Class类型
 		return (this.resolved != null ? this.resolved : fallback);
 	}
 
@@ -1108,6 +1111,9 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * Return a {@link ResolvableType} for the specified {@link Field}.
+	 *
+	 * 获取指定字段的类型
+	 *
 	 * @param field the source field
 	 * @return a {@link ResolvableType} for the specified field
 	 * @see #forField(Field, Class)
@@ -1215,6 +1221,9 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * Return a {@link ResolvableType} for the specified {@link Method} return type.
+	 *
+	 * 获取指定方法的返回值的类型
+	 *
 	 * @param method the source for the method return type
 	 * @return a {@link ResolvableType} for the specified method return
 	 * @see #forMethodReturnType(Method, Class)
@@ -1242,6 +1251,9 @@ public class ResolvableType implements Serializable {
 
 	/**
 	 * Return a {@link ResolvableType} for the specified {@link Method} parameter.
+	 *
+	 * 获取指定方法指定形参的类型
+	 *
 	 * @param method the source method (must not be {@code null})
 	 * @param parameterIndex the parameter index
 	 * @return a {@link ResolvableType} for the specified method parameter

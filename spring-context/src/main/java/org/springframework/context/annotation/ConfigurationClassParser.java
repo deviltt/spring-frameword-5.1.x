@@ -505,6 +505,8 @@ class ConfigurationClassParser {
 
 	/**
 	 * Returns {@code @Import} class, considering all meta-annotations.
+	 *
+	 * 获取所有的 @Import 里面的类
 	 */
 	private Set<SourceClass> getImports(SourceClass sourceClass) throws IOException {
 		Set<SourceClass> imports = new LinkedHashSet<>();
@@ -530,7 +532,7 @@ class ConfigurationClassParser {
 			throws IOException {
 
 		if (visited.add(sourceClass)) {
-			for (SourceClass annotation : sourceClass.getAnnotations()) {
+			for (SourceClass annotation : sourceClass.getAnnotations()) {	// 获取类上面的所有注解
 				String annName = annotation.getMetadata().getClassName();
 				if (!annName.equals(Import.class.getName())) {
 					collectImports(annotation, imports, visited);

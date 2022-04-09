@@ -993,6 +993,9 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * to find the first that supports the handler class.
 	 * <p>All HTTP methods are handled by this method. It's up to HandlerAdapters or handlers
 	 * themselves to decide which methods are acceptable.
+	 *
+	 * 中央控制器，控制请求的转发
+	 *
 	 * @param request current HTTP request
 	 * @param response current HTTP response
 	 * @throws Exception in case of any kind of processing failure
@@ -1009,20 +1012,26 @@ public class DispatcherServlet extends FrameworkServlet {
 			Exception dispatchException = null;
 
 			try {
+				// 1.检查是否是文件上传的请求
 				processedRequest = checkMultipart(request);
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
+				// 2.取得处理当前请求的controller,这里也称为hanlder处理器,
+				// 第一个步骤的意义就在这里体现了.这里并不是直接返回controller,
+				// 而是返回的HandlerExecutionChain请求处理器链对象,该对象封装了handler和interceptors
 				mappedHandler = getHandler(processedRequest);
-				if (mappedHandler == null) {
+				if (mappedHandler == null) {	// 如果handler为空，则返回404
 					noHandlerFound(processedRequest, response);
 					return;
 				}
 
 				// Determine handler adapter for the current request.
+				// 3.获取处理request的处理器适配器handler adapter
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
+				// 处理 last-modified 请求头
 				String method = request.getMethod();
 				boolean isGet = "GET".equals(method);
 				if (isGet || "HEAD".equals(method)) {
@@ -1032,18 +1041,23 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				// 4.拦截器的预处理方法
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
 				// Actually invoke the handler.
+				// 5.实际的处理器处理请求，返回结果视图对象
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
 
+				// mv是module view的简称
+				// 结果视图对象的处理
 				applyDefaultViewName(processedRequest, mv);
+				// 6.拦截器的后置处理方法
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {
@@ -1265,6 +1279,14 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
 		if (this.handlerAdapters != null) {
+			/*
+				遍历 handlerAdapters
+				遍历各个HandlerAdapter，看那个Adapter支持处理当前Handler
+				handlerAdapters是一个List<HandlerAdapter>，HandlerAdapter是一个接口，里面有几个实现类：
+				1.HttpRequestHandlerAdapter 实现接口的方式
+				2.SimpleControllerHandlerAdapter 实现Controller接口的方式
+				3.RequestMappingHandlerAdapter 是不是HandlerMethod（RequestMappingHandlerMapping封装的）的实例
+			 */
 			for (HandlerAdapter adapter : this.handlerAdapters) {
 				if (adapter.supports(handler)) {
 					return adapter;
