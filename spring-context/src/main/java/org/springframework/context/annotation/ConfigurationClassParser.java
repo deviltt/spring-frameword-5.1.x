@@ -161,6 +161,7 @@ class ConfigurationClassParser {
 
 
 	public void parse(Set<BeanDefinitionHolder> configCandidates) {
+		// 遍历所有的 beanDefinition
 		for (BeanDefinitionHolder holder : configCandidates) {
 			BeanDefinition bd = holder.getBeanDefinition();
 			try {
@@ -390,7 +391,9 @@ class ConfigurationClassParser {
 	 */
 	private Set<MethodMetadata> retrieveBeanMethodMetadata(SourceClass sourceClass) {
 		AnnotationMetadata original = sourceClass.getMetadata();
+		// 获取 configBean中 所有 @Bean 注解
 		Set<MethodMetadata> beanMethods = original.getAnnotatedMethods(Bean.class.getName());
+		// 如果 beanMethods 大于1就要做一些特殊处理
 		if (beanMethods.size() > 1 && original instanceof StandardAnnotationMetadata) {
 			// Try reading the class file via ASM for deterministic declaration order...
 			// Unfortunately, the JVM's standard reflection returns methods in arbitrary
@@ -900,9 +903,10 @@ class ConfigurationClassParser {
 	 * in a uniform manner, regardless of how they are loaded.
 	 */
 	private class SourceClass implements Ordered {
-
+		// 正如英文注释所述，source的实际类型是 class对象类型或者是 MetadataReader类型
 		private final Object source;  // Class or MetadataReader
 
+		// 注解元数据
 		private final AnnotationMetadata metadata;
 
 		public SourceClass(Object source) {
