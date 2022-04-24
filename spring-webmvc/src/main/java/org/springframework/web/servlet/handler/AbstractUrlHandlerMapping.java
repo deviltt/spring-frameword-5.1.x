@@ -61,6 +61,9 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 
 	private boolean lazyInitHandlers = false;
 
+	/**
+	 * 建立url和controller之间的映射关系
+	 */
 	private final Map<String, Object> handlerMap = new LinkedHashMap<>();
 
 

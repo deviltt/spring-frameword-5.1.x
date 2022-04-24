@@ -302,7 +302,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 */
 	@Override
 	public int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException {
-		// 使用EncodeedResource对resource进行封装，目的是对资源文件的编码进行处理
+		// 使用EncodedResource对resource进行封装，目的是对资源文件的编码进行处理
 		return loadBeanDefinitions(new EncodedResource(resource));
 	}
 
@@ -333,6 +333,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 			// 从EncodeResource获取已经封装好的Resource对象，并再次从Resource中获取输入流InputStream
 			InputStream inputStream = encodedResource.getResource().getInputStream();
 			try {
+				// 构造 InputSource，作为输入源
 				InputSource inputSource = new InputSource(inputStream);
 				if (encodedResource.getEncoding() != null) {
 					// InputSource设置和EncodeResource相同的编码方式

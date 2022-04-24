@@ -99,6 +99,10 @@ public class ResolvableTypeTests {
 		assertThat(none.isAssignableFrom(ResolvableType.forClass(Object.class)), equalTo(false));
 	}
 
+	/**
+	 * lassA.isAssignableFrom(classB); classA是否为classB的父类
+	 * @throws Exception
+	 */
 	@Test
 	public void forClass() throws Exception {
 		ResolvableType type = ResolvableType.forClass(ExtendsList.class);
@@ -106,14 +110,17 @@ public class ResolvableTypeTests {
 		assertThat(type.getRawClass(), equalTo(ExtendsList.class));
 		assertTrue(type.isAssignableFrom(ExtendsList.class));
 		assertFalse(type.isAssignableFrom(ArrayList.class));
+		assertTrue(ArrayList.class.isAssignableFrom(ExtendsList.class));
 	}
 
 	@Test
 	public void forClassWithNull() throws Exception {
+		// forClass(null)，则ResolvableType默认是 Class 类型
 		ResolvableType type = ResolvableType.forClass(null);
 		assertThat(type.getType(), equalTo((Type) Object.class));
 		assertThat(type.getRawClass(), equalTo(Object.class));
 		assertTrue(type.isAssignableFrom(Object.class));
+		// Object是String的杀手
 		assertTrue(type.isAssignableFrom(String.class));
 	}
 
@@ -123,6 +130,7 @@ public class ResolvableTypeTests {
 		assertThat(type.getType(), equalTo((Type) ExtendsList.class));
 		assertThat(type.getRawClass(), equalTo(ExtendsList.class));
 		assertTrue(type.isAssignableFrom(ExtendsList.class));
+		// ArrayList是ExtendList的父类
 		assertFalse(type.isAssignableFrom(ArrayList.class));
 	}
 

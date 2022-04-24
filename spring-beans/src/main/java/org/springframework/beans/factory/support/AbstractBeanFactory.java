@@ -239,7 +239,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	protected <T> T doGetBean(
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
-		// 提取对应的beanName
+		// 提取对应的beanName，&&&&beanName解析成beanName
 		String beanName = transformedBeanName(name);
 		Object bean;
 
@@ -573,6 +573,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		BeanFactory parentBeanFactory = getParentBeanFactory();
 		if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 			// No bean definition found in this factory -> delegate to parent.
+			// 在当前工厂没有找到beanDefinition，委托父类查找
 			return parentBeanFactory.isTypeMatch(originalBeanName(name), typeToMatch);
 		}
 
@@ -593,6 +594,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			RootBeanDefinition tbd = getMergedBeanDefinition(dbd.getBeanName(), dbd.getBeanDefinition(), mbd);
 			Class<?> targetClass = predictBeanType(dbd.getBeanName(), tbd, typesToMatch);
 			if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
+				// 如果不是FactoryBean的类型，就直接判断类型是否匹配
 				return typeToMatch.isAssignableFrom(targetClass);
 			}
 		}
@@ -605,6 +607,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Check bean class whether we're dealing with a FactoryBean.
 		if (FactoryBean.class.isAssignableFrom(beanType)) {
 			if (!BeanFactoryUtils.isFactoryDereference(name) && beanInstance == null) {
+				// 如果是FactoryBean的子类，并且beanName不是以 & 开头，就通过
+				// beanFactory 的 getObjectType 获取类型
 				// If it's a FactoryBean, we want to look at what it creates, not the factory class.
 				beanType = getTypeForFactoryBean(beanName, mbd);
 				if (beanType == null) {
@@ -1569,6 +1573,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected boolean isFactoryBean(String beanName, RootBeanDefinition mbd) {
 		Class<?> beanType = predictBeanType(beanName, mbd, FactoryBean.class);
+		// a.isAssignableFrom(b); 判断a是否为b的父类
 		return (beanType != null && FactoryBean.class.isAssignableFrom(beanType));
 	}
 

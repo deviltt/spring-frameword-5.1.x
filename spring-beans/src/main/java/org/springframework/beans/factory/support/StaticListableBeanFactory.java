@@ -342,6 +342,7 @@ public class StaticListableBeanFactory implements ListableBeanFactory {
 			}
 		}
 		List<String> matches = new ArrayList<>();
+		// 遍历这里的所有 bean
 		for (Map.Entry<String, Object> entry : this.beans.entrySet()) {
 			String name = entry.getKey();
 			Object beanInstance = entry.getValue();

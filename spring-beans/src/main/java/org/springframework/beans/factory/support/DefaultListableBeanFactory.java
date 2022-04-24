@@ -841,12 +841,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
+			// 通过合并，获取 RootBeanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
-				if (isFactoryBean(beanName)) {
+				if (isFactoryBean(beanName)) {	// 判断beanName对应的bean类型是不是FactoryBean类型
+					// 如果是FactoryBean类型，就去获取bean，这里返回的是FactoryBean本身
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						FactoryBean<?> factory = (FactoryBean<?>) bean;
+						// eager 急切的
+						// 用于判断是否提前调用FactoryBean的getObject，然后放入factoryBeanObjectCache缓存中
+						// 实际上FactoryBean本身是放在一级缓存singletonObjects中的，而
+						// getObject返回的对象是缓存在factoryBeanObjectCache中的
 						boolean isEagerInit;
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged(
@@ -1273,6 +1279,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				autowiredBeanNames.add(autowiredBeanName);
 			}
 			if (instanceCandidate instanceof Class) {
+				// 在这 去获取 AutoWired 注入的bean
 				instanceCandidate = descriptor.resolveCandidate(autowiredBeanName, type, this);
 			}
 			Object result = instanceCandidate;

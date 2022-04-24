@@ -56,6 +56,8 @@ public class BeanFactoryUtilsTests {
 
 	private DefaultListableBeanFactory listableBeanFactory;
 
+	private DefaultListableBeanFactory parent;
+
 	private DefaultListableBeanFactory dependentBeansFactory;
 
 
@@ -65,6 +67,7 @@ public class BeanFactoryUtilsTests {
 		// Slow to read so we cache it.
 
 		DefaultListableBeanFactory grandParent = new DefaultListableBeanFactory();
+		// 装饰模式，加载 BeanDefinitions
 		new XmlBeanDefinitionReader(grandParent).loadBeanDefinitions(ROOT_CONTEXT);
 		DefaultListableBeanFactory parent = new DefaultListableBeanFactory(grandParent);
 		new XmlBeanDefinitionReader(parent).loadBeanDefinitions(MIDDLE_CONTEXT);
@@ -75,6 +78,8 @@ public class BeanFactoryUtilsTests {
 		new XmlBeanDefinitionReader(this.dependentBeansFactory).loadBeanDefinitions(DEPENDENT_BEANS_CONTEXT);
 		dependentBeansFactory.preInstantiateSingletons();
 		this.listableBeanFactory = child;
+
+		this.parent = parent;
 	}
 
 
@@ -100,11 +105,16 @@ public class BeanFactoryUtilsTests {
 
 	@Test
 	public void testHierarchicalNamesWithNoMatch() throws Exception {
+		// 统计beanFactory中和NoOp.class匹配的beanName
 		List<String> names = Arrays.asList(
 				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(this.listableBeanFactory, NoOp.class));
 		assertEquals(0, names.size());
 	}
 
+	/**
+	 * 测试只有 root factory 匹配，会返回多少beanName
+	 * @throws Exception
+	 */
 	@Test
 	public void testHierarchicalNamesWithMatchOnlyInRoot() throws Exception {
 		List<String> names = Arrays.asList(
@@ -388,6 +398,11 @@ public class BeanFactoryUtilsTests {
 		assertTrue(lbf.isPrototype("&sfb4"));
 	}
 
+	@Test
+	public void testTransformedBeanName(){
+		String factoryBeanName = "&&&&test";
+		assertEquals("test", BeanFactoryUtils.transformedBeanName(factoryBeanName));
+	}
 
 	static class TestBeanSmartFactoryBean implements SmartFactoryBean<TestBean> {
 

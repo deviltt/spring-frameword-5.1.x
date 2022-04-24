@@ -157,6 +157,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			XmlReaderContext readerContext, Element root, @Nullable BeanDefinitionParserDelegate parentDelegate) {
 
 		BeanDefinitionParserDelegate delegate = new BeanDefinitionParserDelegate(readerContext);
+		// 初始化 delegate 里面的默认的 DocumentDefaultDefinition
 		delegate.initDefaults(root, parentDelegate);
 		return delegate;
 	}
@@ -167,7 +168,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * @param root the DOM root element of the document
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
-		// todo 如果是
+		// 如果是默认命名空间
 		if (delegate.isDefaultNamespace(root)) {
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
@@ -180,6 +181,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						parseDefaultElement(ele, delegate);
 					}
 					else {
+						// delegate 委托
+						// custom 自定义
 						delegate.parseCustomElement(ele);
 					}
 				}
@@ -203,7 +206,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
 			processBeanDefinition(ele, delegate);
 		}
-		// 对beans标签的处理
+		// 对beans标签的处理，根据字面意思可以看出是 NESTED_BEANS_ELEMENT
+		// 嵌入在beans标签里面的beans标签
 		else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
 			// recurse
 			doRegisterBeanDefinitions(ele);

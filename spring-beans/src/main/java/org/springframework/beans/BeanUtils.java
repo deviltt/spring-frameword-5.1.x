@@ -673,6 +673,7 @@ public abstract class BeanUtils {
 		PropertyDescriptor[] targetPds = getPropertyDescriptors(actualEditable);
 		List<String> ignoreList = (ignoreProperties != null ? Arrays.asList(ignoreProperties) : null);
 
+		// 调用source的read方法，然后把值赋给target的set方法
 		for (PropertyDescriptor targetPd : targetPds) {
 			Method writeMethod = targetPd.getWriteMethod();
 			if (writeMethod != null && (ignoreList == null || !ignoreList.contains(targetPd.getName()))) {
@@ -682,6 +683,7 @@ public abstract class BeanUtils {
 					if (readMethod != null &&
 							ClassUtils.isAssignable(writeMethod.getParameterTypes()[0], readMethod.getReturnType())) {
 						try {
+							// 修改权限，防止private方法不能直接调用
 							if (!Modifier.isPublic(readMethod.getDeclaringClass().getModifiers())) {
 								readMethod.setAccessible(true);
 							}
