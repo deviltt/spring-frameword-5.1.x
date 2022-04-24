@@ -137,7 +137,10 @@ class ConfigurationClassBeanDefinitionReader {
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+
+		// 遍历 configBean 中所有带有 @Bean 对象的注解
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
+			// 加载 beanDefinition 根据加了 @Bean 的方法
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
@@ -173,8 +176,10 @@ class ConfigurationClassBeanDefinitionReader {
 	 */
 	@SuppressWarnings("deprecation")  // for RequiredAnnotationBeanPostProcessor.SKIP_REQUIRED_CHECK_ATTRIBUTE
 	private void loadBeanDefinitionsForBeanMethod(BeanMethod beanMethod) {
+		// 从 methodBean 中获取配置类 configBean
 		ConfigurationClass configClass = beanMethod.getConfigurationClass();
 		MethodMetadata metadata = beanMethod.getMetadata();
+		// 获取方法名
 		String methodName = metadata.getMethodName();
 
 		// Do we need to mark the bean as skipped by its condition?
@@ -186,6 +191,7 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		// 获取 @Bean 注解的所有属性对应值
 		AnnotationAttributes bean = AnnotationConfigUtils.attributesFor(metadata, Bean.class);
 		Assert.state(bean != null, "No @Bean annotation attributes");
 
@@ -225,6 +231,8 @@ class ConfigurationClassBeanDefinitionReader {
 		beanDef.setAttribute(org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor.
 				SKIP_REQUIRED_CHECK_ATTRIBUTE, Boolean.TRUE);
 
+		// 处理其它注册在 @Bean 方法上的通用注解，如：
+		// @Lazy、@Primary、@DependsOn、@Role、@Description
 		AnnotationConfigUtils.processCommonDefinitionAnnotations(beanDef, metadata);
 
 		Autowire autowire = bean.getEnum("autowire");
@@ -247,6 +255,8 @@ class ConfigurationClassBeanDefinitionReader {
 
 		// Consider scoping
 		ScopedProxyMode proxyMode = ScopedProxyMode.NO;
+
+		// 处理 @Scope 注解
 		AnnotationAttributes attributes = AnnotationConfigUtils.attributesFor(metadata, Scope.class);
 		if (attributes != null) {
 			beanDef.setScope(attributes.getString("value"));
@@ -258,6 +268,8 @@ class ConfigurationClassBeanDefinitionReader {
 
 		// Replace the original bean definition with the target one, if necessary
 		BeanDefinition beanDefToRegister = beanDef;
+
+		// todo 处理 代理模式
 		if (proxyMode != ScopedProxyMode.NO) {
 			BeanDefinitionHolder proxyDef = ScopedProxyCreator.createScopedProxy(
 					new BeanDefinitionHolder(beanDef, beanName), this.registry,
@@ -270,6 +282,8 @@ class ConfigurationClassBeanDefinitionReader {
 			logger.trace(String.format("Registering bean definition for @Bean method %s.%s()",
 					configClass.getMetadata().getClassName(), beanName));
 		}
+
+		// 把配置类中 @Bean 方法抽象出来的 beanDefinition 注册到 beanFactory 中
 		this.registry.registerBeanDefinition(beanName, beanDefToRegister);
 	}
 

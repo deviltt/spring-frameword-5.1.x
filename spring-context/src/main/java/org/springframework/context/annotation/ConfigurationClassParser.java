@@ -316,6 +316,7 @@ class ConfigurationClassParser {
 		}
 
 		// Process individual @Bean methods
+		// retrieve 检索
 		Set<MethodMetadata> beanMethods = retrieveBeanMethodMetadata(sourceClass);
 		for (MethodMetadata methodMetadata : beanMethods) {
 			configClass.addBeanMethod(new BeanMethod(methodMetadata, configClass));
@@ -631,7 +632,9 @@ class ConfigurationClassParser {
 	 */
 	private SourceClass asSourceClass(ConfigurationClass configurationClass) throws IOException {
 		AnnotationMetadata metadata = configurationClass.getMetadata();
+
 		if (metadata instanceof StandardAnnotationMetadata) {
+			// bean 所对应的 class对象
 			return asSourceClass(((StandardAnnotationMetadata) metadata).getIntrospectedClass());
 		}
 		return asSourceClass(metadata.getClassName());
