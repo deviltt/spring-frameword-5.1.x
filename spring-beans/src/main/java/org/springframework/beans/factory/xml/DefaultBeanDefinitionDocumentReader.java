@@ -128,7 +128,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		BeanDefinitionParserDelegate parent = this.delegate;
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 
+		// 功能：环境与profile，如果环境与profile不匹配，直接返回
+		// 如果是默认命名空间，http://www.springframework.org/schema/beans
 		if (this.delegate.isDefaultNamespace(root)) {
+			// 获取 beans 标签里面的 profile 属性
+			// 形如 <beans profile="dev">
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
 			if (StringUtils.hasText(profileSpec)) {
 				String[] specifiedProfiles = StringUtils.tokenizeToStringArray(
@@ -183,6 +187,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 					else {
 						// delegate 委托
 						// custom 自定义
+						// 解析自定义元素
 						delegate.parseCustomElement(ele);
 					}
 				}
