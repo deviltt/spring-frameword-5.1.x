@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.tt.com/schema/car-desc"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+			targetNamespace="http://www.tt.com/schema/car-desc"
+			elementFormDefault="qualified">
+
+	<xsd:attribute name="car-desc" type="xsd:string"/>
+
+</xsd:schema>
