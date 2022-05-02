@@ -537,6 +537,14 @@ public class BeanDefinitionParserDelegate {
 			// 硬编码解析默认bean的各种属性，scope、init-method、destroy-method、autowire等
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			// 提取description
+			/*
+			注意点：
+			description子标签需放在所有子标签的前面声明，否则会报异常如：
+			<bean>
+				<description>test</description>
+				<property name="" value="" />
+			</bean>
+			 */
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 
 			// 下面就是解析 <bean> 标签里面的子元素

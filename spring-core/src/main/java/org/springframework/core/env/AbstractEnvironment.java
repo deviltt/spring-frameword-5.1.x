@@ -353,7 +353,9 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment {
 	 */
 	protected boolean isProfileActive(String profile) {
 		validateProfile(profile);
+		// 先获取配置 spring.profiles.active
 		Set<String> currentActiveProfiles = doGetActiveProfiles();
+		// 如果当前 profile 不在 activeProfiles里面，就获取 spring.profiles.default，看这个里面有没有 profile
 		return (currentActiveProfiles.contains(profile) ||
 				(currentActiveProfiles.isEmpty() && doGetDefaultProfiles().contains(profile)));
 	}

@@ -6,6 +6,13 @@
 	<bean id="person" class="com.app2.Person"/>
 
 	<bean id="factoryBeanTest" class="com.tt.FactoryBeanTest">
-		<property name="ids" value="1,2,3"/>
+		<!-- description必须放在所有标签的最前面 -->
+		<description>
+			Automatically proxies using JDK dynamic proxies
+		</description>
+		<property name="ids">
+			<description>ids</description>
+			<value>1,2,3</value>
+		</property>
 	</bean>
 </beans>

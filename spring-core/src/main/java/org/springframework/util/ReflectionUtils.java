@@ -689,6 +689,7 @@ public abstract class ReflectionUtils {
 	 * @see #doWithFields
 	 */
 	public static void doWithLocalFields(Class<?> clazz, FieldCallback fc) {
+		// 获取 clazz 对象里面所有的 域信息（私有、公有、默认的）
 		for (Field field : getDeclaredFields(clazz)) {
 			try {
 				fc.doWith(field);

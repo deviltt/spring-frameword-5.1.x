@@ -135,6 +135,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			beanFactory.setSerializationId(getId());
 			// 定制beanFactory，设置相关属性
 			// 设置@Autowired和@Qualifier注解解析器QualifierAnnotationAutowireCandidateResolver
+			// customize 定制
 			customizeBeanFactory(beanFactory);
 			// 装载 beanDefinition
 			// 初始化DocumentReader，并进行XML文件读取和解析

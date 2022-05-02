@@ -63,6 +63,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 		// 如果有需要覆盖或者动态替换的方法则当然需要使用cglib进行动态代理，因为可以在创建代理的同时
 		// 将动态方法织入类中
 		// 但是如果没有需要动态改变的方法，为了方便直接反射就可以了
+		// 解析lookup-method、replaced-method标签的时候就会为 beanDefinition 添加 methodOverrides
 		if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
