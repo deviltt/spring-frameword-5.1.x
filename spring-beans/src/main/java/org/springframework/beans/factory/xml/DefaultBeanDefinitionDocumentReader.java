@@ -325,9 +325,17 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// 从元素解析及信息提取开始
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
+			// 自定义标签、属性的解析，扩展功能
+			/*
+			<bean id="" tt="">
+				<mytt name="" value="" />
+			</bean>
+			这里的 tt 就是自定义属性，mytt 就是自定义标签
+			 */
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.
+				// 注册最终的 beanDefinition 到 beanFactory 中
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
 			catch (BeanDefinitionStoreException ex) {

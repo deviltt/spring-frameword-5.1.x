@@ -446,7 +446,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 			final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
 
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
-				// 获取注解的各种属性组成的实体
+				// 解析修饰在 field 上面的注解（@Autowired、@Value）
+				// 如果有 @Autowired 修饰，则直接返回，否则再获取 @Value
 				AnnotationAttributes ann = findAutowiredAnnotation(field);
 				if (ann != null) {
 					// 判断 field 的修饰符是否为 static，如果是 static 类型，就不需要进行依赖注入

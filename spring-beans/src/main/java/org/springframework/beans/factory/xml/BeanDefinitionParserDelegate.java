@@ -426,7 +426,9 @@ public class BeanDefinitionParserDelegate {
 			aliases.addAll(Arrays.asList(nameArr));
 		}
 
+		// 默认beanName和id相同
 		String beanName = id;
+		// 如果 id 没有设置且设置了 name属性，beanName就取name属性的第一个值（以逗号分隔后）
 		if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
 			beanName = aliases.remove(0);
 			if (logger.isTraceEnabled()) {
@@ -436,9 +438,11 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		if (containingBean == null) {
+			// 校验 beanName和aliases 在容器中的唯一性
 			checkNameUniqueness(beanName, aliases, ele);
 		}
 
+		// 重点方法，里面解析了 <bean> 标签以及 <bean> 标签的所有子元素，生成 GenericBeanDefinition
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
 			// 如果不存在 beanName 那么根据spring中提供的命名规则为当前bean生成对应的beanName
@@ -448,11 +452,13 @@ public class BeanDefinitionParserDelegate {
 						beanName = BeanDefinitionReaderUtils.generateBeanName(
 								beanDefinition, this.readerContext.getRegistry(), true);
 					}
-					else {
+					else {	// 如果 containingBean 为 null
 						beanName = this.readerContext.generateBeanName(beanDefinition);
 						// Register an alias for the plain bean class name, if still possible,
 						// if the generator returned the class name plus a suffix.
 						// This is expected for Spring 1.2/2.0 backwards compatibility.
+						// 如果 context 中的 classLoader 不为空，就只设置 beanClass，不会设置 beanClassName
+						// 如果 context 中的 classLoader 为空，这个场景的时候 beanClassName 不为null
 						String beanClassName = beanDefinition.getBeanClassName();
 						if (beanClassName != null &&
 								beanName.startsWith(beanClassName) && beanName.length() > beanClassName.length() &&
@@ -508,10 +514,16 @@ public class BeanDefinitionParserDelegate {
 
 		this.parseState.push(new BeanEntry(beanName));
 
+		// 解析 class 属性
+		/*
+		<bean id="" name="" class="" parent="" />
+		 */
 		String className = null;
 		if (ele.hasAttribute(CLASS_ATTRIBUTE)) {
 			className = ele.getAttribute(CLASS_ATTRIBUTE).trim();
 		}
+
+		// 解析 parent 属性
 		String parent = null;
 		if (ele.hasAttribute(PARENT_ATTRIBUTE)) {
 			parent = ele.getAttribute(PARENT_ATTRIBUTE);
@@ -519,13 +531,15 @@ public class BeanDefinitionParserDelegate {
 
 		try {
 			// 创建用于承载属性的 AbstractBeanDefinition 类型的 GenericBeanDefinition
+			// 设置 beanClass 和 beanClassName
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
-			// 硬编码解析默认bean的各种属性
+			// 硬编码解析默认bean的各种属性，scope、init-method、destroy-method、autowire等
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			// 提取description
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 
+			// 下面就是解析 <bean> 标签里面的子元素
 			// todo 解析元数据，meta 标签
 			// meta 标签里面的 key和value 可以通过 beanDefinition.getAttribute获得
 			parseMetaElements(ele, bd);
@@ -1440,6 +1454,7 @@ public class BeanDefinitionParserDelegate {
 		BeanDefinitionHolder finalDefinition = originalDef;
 
 		// Decorate based on custom attributes first.
+		// 获取 自定义属性
 		NamedNodeMap attributes = ele.getAttributes();
 		for (int i = 0; i < attributes.getLength(); i++) {
 			Node node = attributes.item(i);
@@ -1447,6 +1462,7 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		// Decorate based on custom nested elements.
+		// 获取 自定义标签
 		NodeList children = ele.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node node = children.item(i);
@@ -1469,7 +1485,9 @@ public class BeanDefinitionParserDelegate {
 			Node node, BeanDefinitionHolder originalDef, @Nullable BeanDefinition containingBd) {
 
 		String namespaceUri = getNamespaceURI(node);
+		// 如果不是默认的命名空间
 		if (namespaceUri != null && !isDefaultNamespace(namespaceUri)) {
+			// 根据命名空间解析 命名空间uri，获取对应的 handler 进行处理
 			NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 			if (handler != null) {
 				BeanDefinitionHolder decorated =

@@ -843,17 +843,24 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		for (String beanName : beanNames) {
 			// 通过合并，获取 RootBeanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+			/*
+			 需要满足三个条件：
+			 1. 非抽象
+			 2. 单例
+			 3. 非懒加载
+			 */
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
 				if (isFactoryBean(beanName)) {	// 判断beanName对应的bean类型是不是FactoryBean类型
-					// 如果是FactoryBean类型，就去获取bean，这里返回的是FactoryBean本身
+					// 如果是FactoryBean类型，就先去实例化 FactoryBean 本身
 					Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
 					if (bean instanceof FactoryBean) {
 						FactoryBean<?> factory = (FactoryBean<?>) bean;
 						// eager 急切的
 						// 用于判断是否提前调用FactoryBean的getObject，然后放入factoryBeanObjectCache缓存中
 						// 实际上FactoryBean本身是放在一级缓存singletonObjects中的，而
-						// getObject返回的对象是缓存在factoryBeanObjectCache中的
+						// getObject返回的对象是缓存在 factoryBeanObjectCache 中的
 						boolean isEagerInit;
+						// 只有 FactoryBean 是 SmartFactory 类型的，isEagerInit 才有可能是 true，提前调用 getBean
 						if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
 							isEagerInit = AccessController.doPrivileged(
 									(PrivilegedAction<Boolean>) ((SmartFactoryBean<?>) factory)::isEagerInit,
@@ -869,6 +876,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 				else {
+					// 如果不是 FactoryBean 类型，
 					getBean(beanName);
 				}
 			}

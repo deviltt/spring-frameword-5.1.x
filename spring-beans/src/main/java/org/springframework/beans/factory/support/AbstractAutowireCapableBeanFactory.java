@@ -483,6 +483,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Make sure bean class is actually resolved at this point, and
 		// clone the bean definition in case of a dynamically resolved Class
 		// which cannot be stored in the shared merged bean definition.
+		// my TODO 这个方法主要用来干嘛的呢？？
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
 			mbdToUse = new RootBeanDefinition(mbd);
@@ -501,6 +502,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			// my TODO 什么场景会抓住这个机会提前实例化呢？
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			// 这里要注意，如果InstantiationAwareBeanPostProcess的postProcessorBeforeInstantiation方法
 			// 直接返回了 bean，那么在这边就会直接返回了，不会继续往下执行 doCreateBean 了
@@ -1185,6 +1187,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 如果工厂方法不为空则使用工厂方法初始化策略
 			// 如果再RootBeanDefinition中存在factoryMethodName，
 			// 或者在配置文件中配置了factory-method，尝试使用下面的方法生成bean的实例
+			// @Configuration 和 @Bean
+			// @Bean 定义的 bean 就是走的这个流程，回调 ConfigurationBean 的代理方法，创建 @Bean 对应的 bean 对象
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}
 

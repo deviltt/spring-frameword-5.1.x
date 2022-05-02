@@ -1312,6 +1312,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
 					}
 					else {
+						// 用 RootBeanDefinition 封装 GenericBeanDefinition
 						mbd = new RootBeanDefinition(bd);
 					}
 				}
