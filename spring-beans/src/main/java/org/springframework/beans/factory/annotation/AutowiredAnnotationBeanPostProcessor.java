@@ -422,6 +422,11 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
 		// Quick check on the concurrent map first, with minimal locking.
 		InjectionMetadata metadata = this.injectionMetadataCache.get(cacheKey);
+		/*
+		1. metadata == null 首先调用的时候，metadata肯定为null，调用 buildAutowiringMetadata 填充 injectionMetadataCache
+		2. metadata != null && targetClass != class，说明class类型变了，需要重新刷新 metadata 信息
+		所以在 postProcessProperties 方法中可以直接从 injectionMetadataCache 中获取要注入的属性值
+		 */
 		if (InjectionMetadata.needsRefresh(metadata, clazz)) {
 			synchronized (this.injectionMetadataCache) {
 				metadata = this.injectionMetadataCache.get(cacheKey);
