@@ -81,10 +81,13 @@ final class PostProcessorRegistrationDelegate {
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
+				// 首先处理 BeanDefinitionRegistryPostProcessor 类型的 BeanFactoryPostProcessor
+				// 目前框架只有一个，就是 ConfigurationClassPostProcessor
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
+					//
 					registryProcessors.add(registryProcessor);
 				}
 				else {
@@ -143,6 +146,7 @@ final class PostProcessorRegistrationDelegate {
 				currentRegistryProcessors.clear();
 			}
 
+			// 最后再统一执行 postProcessBeanFactory 方法
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);

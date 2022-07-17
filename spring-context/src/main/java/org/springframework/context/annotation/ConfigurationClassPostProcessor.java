@@ -265,6 +265,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			processConfigBeanDefinitions((BeanDefinitionRegistry) beanFactory);
 		}
 
+		// 判断是否要为配置类添加动态代理
 		enhanceConfigurationClasses(beanFactory);
 		beanFactory.addBeanPostProcessor(new ImportAwareBeanPostProcessor(beanFactory));
 	}
@@ -388,11 +389,18 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	public void enhanceConfigurationClasses(ConfigurableListableBeanFactory beanFactory) {
 		StartupStep enhanceConfigClasses = this.applicationStartup.start("spring.context.config-classes.enhance");
 		Map<String, AbstractBeanDefinition> configBeanDefs = new LinkedHashMap<>();
+
+		// 遍历所有的 beanDefinitionNames，看哪些 bean 是需要被动态代理的，需要被动态代理的 beanDefinition，beanClass 为动态代理类的 class 类型
 		for (String beanName : beanFactory.getBeanDefinitionNames()) {
 			BeanDefinition beanDef = beanFactory.getBeanDefinition(beanName);
+			/**
+			 * @see org.springframework.context.annotation.ConfigurationClassUtils#checkConfigurationClassCandidate
+			 * 在这个方法设置了该属性，用于判断 @Configuration 注解是 full 还是 lite 类型的
+ 			 */
 			Object configClassAttr = beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE);
 			AnnotationMetadata annotationMetadata = null;
 			MethodMetadata methodMetadata = null;
+			// AnnotatedBeanDefinition 包括：ScannedGenericBeanDefinition、AnnotatedGenericBeanDefinition、ConfigurationClassBeanDefinition
 			if (beanDef instanceof AnnotatedBeanDefinition) {
 				AnnotatedBeanDefinition annotatedBeanDefinition = (AnnotatedBeanDefinition) beanDef;
 				annotationMetadata = annotatedBeanDefinition.getMetadata();
@@ -438,6 +446,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			return;
 		}
 
+		// 如果 @Configuration 是 FULL 类型，则用动态代理类替代配置类
 		ConfigurationClassEnhancer enhancer = new ConfigurationClassEnhancer();
 		for (Map.Entry<String, AbstractBeanDefinition> entry : configBeanDefs.entrySet()) {
 			AbstractBeanDefinition beanDef = entry.getValue();
