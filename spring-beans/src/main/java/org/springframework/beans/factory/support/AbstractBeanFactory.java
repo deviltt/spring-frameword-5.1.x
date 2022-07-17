@@ -932,6 +932,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			return null;
 		}
 		String result = value;
+		// org/springframework/context/support/AbstractApplicationContext.java:902
+		// 在上面这个地方添加的
 		for (StringValueResolver resolver : this.embeddedValueResolvers) {
 			result = resolver.resolveStringValue(result);
 			if (result == null) {

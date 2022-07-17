@@ -56,6 +56,7 @@ public class BeanExpressionContext {
 
 	@Nullable
 	public Object getObject(String key) {
+		// #{} 这种表达式解析，依赖其它 bean 的话会走到这
 		if (this.beanFactory.containsBean(key)) {
 			return this.beanFactory.getBean(key);
 		}

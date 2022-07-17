@@ -286,6 +286,8 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @ComponentScan annotations
+		// 获取配置类上的所有ComponentScan，然后获取ComponentScan的属性，保存在 AnnotationAttributes 集合中
+		// AnnotationAttributes 继承了 LinkedHashMap，里面保存了 ComponentScan 的所有方法的返回值
 		Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), ComponentScans.class, ComponentScan.class);
 		if (!componentScans.isEmpty() &&
