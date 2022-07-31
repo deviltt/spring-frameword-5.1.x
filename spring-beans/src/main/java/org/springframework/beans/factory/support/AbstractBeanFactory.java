@@ -1619,6 +1619,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	@Nullable
 	protected Object evaluateBeanDefinitionString(@Nullable String value, @Nullable BeanDefinition beanDefinition) {
+		// 判断是否存在类似解析 el 表达式的解析器，如果不存在就直接返回 value 值，否则需要解析
+		// spring el 表达式解析的代码在 spring-expression 仓里
 		if (this.beanExpressionResolver == null) {
 			return value;
 		}

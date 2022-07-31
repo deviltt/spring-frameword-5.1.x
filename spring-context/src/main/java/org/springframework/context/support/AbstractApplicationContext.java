@@ -39,6 +39,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory;
 import org.springframework.beans.support.ResourceEditorRegistrar;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -163,6 +164,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Boolean flag controlled by a {@code spring.spel.ignore} system property that instructs Spring to
 	 * ignore SpEL, i.e. to not initialize the SpEL infrastructure.
 	 * <p>The default is "false".
+	 *
+	 * 如果不配置，默认值就是 false，即不忽略 el 表达式
 	 */
 	private static final boolean shouldIgnoreSpel = SpringProperties.getFlag("spring.spel.ignore");
 
@@ -686,7 +689,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
 		// Configure the bean factory with context callbacks.
+		// 默认就添加了这个 PostProcessor，所以创建 bean 的时候都会调用这个 PostProcessor 的
+		// postProcessBeforeInitialization、postProcessAfterInitialization 方法
 		beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+		// 意思就是这几个 Aware 类对应的属性是不需要 自动依赖注入的
+		/**
+		 * @see AbstractAutowireCapableBeanFactory#isExcludedFromDependencyCheck
+		 */
 		beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
 		beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
